@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PaymentProcessor.Models;
+using PaymentProcessor.Models.PaymentProcessing;
 using PaymentProcessor.Services.Interface;
 using System;
 using System.ComponentModel.DataAnnotations;
