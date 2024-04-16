@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicApi", "PublicApi\PublicApi.csproj", "{242B35D4-DAEF-4093-A940-9F6B646A631E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicApi", "PublicApi\PublicApi.csproj", "{242B35D4-DAEF-4093-A940-9F6B646A631E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentProcessor", "PaymentProcessor\PaymentProcessor.csproj", "{B2AE8E42-AF0D-4A38-B5D6-374393F8B186}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentProcessor", "PaymentProcessor\PaymentProcessor.csproj", "{B2AE8E42-AF0D-4A38-B5D6-374393F8B186}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPaymentProcessorApp", "TestPaymentProcessorApp\TestPaymentProcessorApp.csproj", "{024EB167-10FB-46A4-9AE1-3BCDA803744C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{B2AE8E42-AF0D-4A38-B5D6-374393F8B186}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2AE8E42-AF0D-4A38-B5D6-374393F8B186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2AE8E42-AF0D-4A38-B5D6-374393F8B186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{024EB167-10FB-46A4-9AE1-3BCDA803744C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{024EB167-10FB-46A4-9AE1-3BCDA803744C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{024EB167-10FB-46A4-9AE1-3BCDA803744C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{024EB167-10FB-46A4-9AE1-3BCDA803744C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
