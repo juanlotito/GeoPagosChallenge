@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PublicApi.Models.Enum;
 using PublicApi.Models.PaymentProcessor;
 using PublicApi.Repositories.Interface;
 using PublicApi.Services.Interface;
@@ -9,13 +10,11 @@ namespace PublicApi.Services
     public class ExternalPaymentProcessor : IExternalPaymentProcessor
     {
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly PaymentProcessorConfig _paymentProcessorConfig;
 
-        public ExternalPaymentProcessor(IPaymentRepository paymentRepository, IHttpClientFactory httpClientFactory, PaymentProcessorConfig paymentProcessorConfig)
+        public ExternalPaymentProcessor(IPaymentRepository paymentRepository, PaymentProcessorConfig paymentProcessorConfig)
         {
             _paymentRepository = paymentRepository;
-            _httpClientFactory = httpClientFactory;
             _paymentProcessorConfig = paymentProcessorConfig;
         }
 
@@ -40,7 +39,7 @@ namespace PublicApi.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    await _paymentRepository.UpdatePaymentStatus(request.PaymentRequestId, 2);
+                    await _paymentRepository.UpdatePaymentStatus(request.PaymentRequestId, (int)PaymentStatus.Denied);
                 }
 
                 var responseString = await response.Content.ReadAsStringAsync();
