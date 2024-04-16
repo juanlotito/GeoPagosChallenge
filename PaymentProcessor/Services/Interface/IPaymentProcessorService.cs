@@ -1,4 +1,4 @@
-﻿using PaymentProcessor.Models;
+﻿using PaymentProcessor.Models.PaymentProcessing;
 
 namespace PaymentProcessor.Services.Interface
 {

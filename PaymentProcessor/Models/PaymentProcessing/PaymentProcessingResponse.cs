@@ -1,4 +1,4 @@
-﻿namespace PaymentProcessor.Models
+﻿namespace PaymentProcessor.Models.PaymentProcessing
 {
     public class PaymentProcessingResponse
     {
