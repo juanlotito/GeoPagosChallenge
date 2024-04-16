@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using PublicApi.Models.Customer;
+using PublicApi.Models.Enum;
 using PublicApi.Models.Payment;
 using PublicApi.Repositories.Interface;
 using System.Data;
@@ -51,7 +52,7 @@ public class PaymentRepository : IPaymentRepository
 
     public async Task ApprovePayment(int paymentRequestId) 
     {
-        var query = @"SELECT fn_UpdatePaymentStatus(@PaymentRequestId, 1);";
+        var query = @$"SELECT fn_UpdatePaymentStatus(@PaymentRequestId, {(int)PaymentStatus.Approved});";
 
         var parameters = new DynamicParameters();
         parameters.Add("PaymentRequestId", paymentRequestId, DbType.Int32);
