@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using PublicApi.Models;
 using PublicApi.Models.Authorization;
+using PublicApi.Models.Enum;
 using PublicApi.Models.Payment;
-using PublicApi.Repositories.Interface;
 using PublicApi.Services.Interface;
 
 namespace PublicApi.Controllers
@@ -21,81 +21,88 @@ namespace PublicApi.Controllers
 
         #region GET
         [HttpGet("/payments/status/{paymentRequestId}")]
-        [Authorize]
         public async Task<IActionResult> GetPaymentStatus(int paymentRequestId)
         {
             try
             {
                 var paymentStatus = await _paymentService.GetPaymentStatus(paymentRequestId);
 
-                if (paymentStatus != null)
-                    return Ok(paymentStatus);
-                else
-                    return NotFound("Payment request not found.");
+                return paymentStatus != null
+                    ? Ok(new Response(true, "Search done correctly", paymentStatus))
+                    : NotFound(new Response(false, "Payment request not found.", null));
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new Response(false, ex.Message, null));
             }
         }
 
         [HttpGet("/payments/authorized")]
-        [Authorize]
         public async Task<IActionResult> GetAuthorizedPayments()
         {
             try
             {
                 var authorizedPayments = await _paymentService.GetAuthorizedPayments();
-                return Ok(authorizedPayments);
+
+                return authorizedPayments.Count() > 0
+                    ? Ok(new Response(true, "Search done correctly", authorizedPayments))
+                    : NotFound(new Response(false, "No payments found", null));
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new Response(false, ex.Message, null));
             }
         }
-
         #endregion
 
         #region POST
         [HttpPost("/payments/authorize")]
         public async Task<IActionResult> AuthorizePayment([FromBody] AuthorizationRequest request, [FromHeader] string token)
         {
-            var paymentRequest = new PaymentRequest
+            try 
             {
-                CustomerId = request.CustomerId,
-                Amount = request.Amount,
-                PaymentTypesId = request.Type,
-                IsConfirmed = false,
-                StatusId = 3,
-                RequiresConfirmation = await this._paymentService.DoesRequestRequireConfirmation(request.CustomerId)
-            };
-
-            var response = await this._paymentService.AuthorizePayment(paymentRequest, token);
-
-            if (request.RequiresConfirmation && response.Approved)
-            {
-                _backgroundTaskQueue.Enqueue(async token =>
+                var response = await this._paymentService.AuthorizePayment(new PaymentRequest
                 {
-                    await Task.Delay(TimeSpan.FromMinutes(5), token);
-                    await this._paymentService.CheckAndReverseIfNotConfirmed(response.PaymentRequestId);
-                });
-            }
+                    CustomerId = request.CustomerId,
+                    Amount = request.Amount,
+                    PaymentTypesId = request.Type,
+                    IsConfirmed = false,
+                    StatusId = (int)PaymentStatus.Pending,
+                    RequiresConfirmation = await this._paymentService.DoesRequestRequireConfirmation(request.CustomerId)
+                }, token);
 
-            return Ok(response);
+                if (request.RequiresConfirmation && response.Approved)
+                {
+                    _backgroundTaskQueue.Enqueue(async token =>
+                    {
+                        await Task.Delay(TimeSpan.FromMinutes(5), token);
+                        await this._paymentService.CheckAndReverseIfNotConfirmed(response.PaymentRequestId);
+                    });
+                }
+
+                return Ok(new Response(response.Success, "Request is being processed.", response));
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(new Response(false, $"Error in payment authorization: {ex.Message}", null));
+            }
+            
         }
 
         [HttpPost("/payments/confirm/{paymentRequestId}")]
         public async Task<IActionResult> ConfirmPayment(int paymentRequestId) 
         {
-            var result = await _paymentService.ConfirmPayment(paymentRequestId);
+            try 
+            {
+                var result = await _paymentService.ConfirmPayment(paymentRequestId);
 
-            if (result.Success)
+                return result.Success
+                    ? Ok(new Response(true, result.Message, null))
+                    : BadRequest(new Response(false, result.Message, null));
+            } 
+            catch(Exception ex) 
             {
-                return Ok(new { Message = "Payment confirmed successfully." });
-            }
-            else
-            {
-                return BadRequest(new { Message = result.Message });
+                return StatusCode(500, new Response(false, ex.Message, null));
             }
         }
 
@@ -104,20 +111,13 @@ namespace PublicApi.Controllers
         {
             try
             {
-                var result = await _paymentService.ReversePayment(paymentRequestId);
-
-                if (result)
-                {
-                    return Ok(new { Message = "Payment has been successfully reversed." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "Failed to reverse payment." });
-                }
+                return await _paymentService.ReversePayment(paymentRequestId)
+                    ? Ok(new Response(true, "Payment has been successfully reversed.", null))
+                    : BadRequest(new Response(false, "Failed to reverse payment.", null));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return StatusCode(500, new Response(false, ex.Message, null));
             }
         }
         #endregion
