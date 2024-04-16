@@ -1,4 +1,5 @@
-﻿using PublicApi.Models.Payment;
+﻿using PublicApi.Models.Enum;
+using PublicApi.Models.Payment;
 using PublicApi.Models.PaymentProcessor;
 using PublicApi.Repositories.Interface;
 using PublicApi.Services.Interface;
@@ -46,7 +47,7 @@ namespace PublicApi.Services
 
                     var processorResponse = await _paymentProcessor.ProcessPaymentAsync(processorRequest, token);
 
-                    await _paymentRepository.UpdatePaymentStatus(insertedId, 3);
+                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Pending);
 
                     // (Opcional) Notificar al usuario sobre el estado del pago
                     // NotifyUserAboutPaymentStatus(processorResponse);
@@ -60,7 +61,6 @@ namespace PublicApi.Services
             return new PaymentResponse
             {
                 Success = true,
-                Message = "Payment is being processed. You will be notified upon completion.",
                 PaymentRequestId = insertedId
             };
         }
