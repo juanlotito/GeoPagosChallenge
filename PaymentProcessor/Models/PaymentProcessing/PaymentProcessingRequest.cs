@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
-namespace PaymentProcessor.Models
+namespace PaymentProcessor.Models.PaymentProcessing
 {
     public class PaymentProcessingRequest
     {
