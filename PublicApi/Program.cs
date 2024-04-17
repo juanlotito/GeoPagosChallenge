@@ -47,7 +47,7 @@ builder.Services.AddTransient<IDbConnection>((sp) => new NpgsqlConnection(connec
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.Listen(System.Net.IPAddress.Loopback, 5000);
+    serverOptions.ListenAnyIP(5000);
 });
 
 var app = builder.Build();
