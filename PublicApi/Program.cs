@@ -4,9 +4,10 @@ using PublicApi.Services;
 using System.Data;
 using PublicApi.Utils;
 using PublicApi.Repositories.Interface;
-using Microsoft.Extensions.Configuration;
 using PublicApi.Models.PaymentProcessor;
 using Microsoft.OpenApi.Models;
+using PublicApi.Utils.RabbitMQ.Interface;
+using PublicApi.Utils.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,14 +22,21 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHostedService<QueuedHostedService>();
 
 // Services
-builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddSingleton<IPaymentService, PaymentService>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-builder.Services.AddScoped<IExternalPaymentProcessor, ExternalPaymentProcessor>();
+builder.Services.AddSingleton<IExternalPaymentProcessor, ExternalPaymentProcessor>();
+builder.Services.AddSingleton<IPaymentRepository, PaymentRepository>();
+
+builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddSingleton<IRabbitMQConsumer>(provider =>
+{
+    var rabbitMQService = provider.GetService<IRabbitMQService>();
+    var paymentService = provider.GetService<IPaymentService>();
+    var paymentRepository = provider.GetService<IPaymentRepository>();
+    return new RabbitMQConsumer("payment_confirmation", paymentService, paymentRepository);
+});
 
 builder.Services.AddHttpClient();
-
-// Repositories
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
