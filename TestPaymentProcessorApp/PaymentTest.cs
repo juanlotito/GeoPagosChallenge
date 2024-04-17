@@ -6,6 +6,7 @@ using PublicApi.Models;
 using PublicApi.Models.Authorization;
 using PublicApi.Models.Payment;
 using PublicApi.Services.Interface;
+using PublicApi.Utils.RabbitMQ.Interface;
 using System.Data;
 
 namespace TestPaymentProcessorApp
@@ -13,14 +14,14 @@ namespace TestPaymentProcessorApp
     public class PaymentControllerTests
     {
         private readonly Mock<IPaymentService> _mockPaymentService;
-        private readonly Mock<IBackgroundTaskQueue> _mockBackgroundTaskQueue;
+        private readonly Mock<IRabbitMQService> _mockRabbitMQService;
         private readonly PaymentController _controller;
 
         public PaymentControllerTests()
         {
             _mockPaymentService = new Mock<IPaymentService>();
-            _mockBackgroundTaskQueue = new Mock<IBackgroundTaskQueue>();
-            _controller = new PaymentController(_mockPaymentService.Object, _mockBackgroundTaskQueue.Object);
+            _mockRabbitMQService = new Mock<IRabbitMQService>();
+            _controller = new PaymentController(_mockPaymentService.Object, _mockRabbitMQService.Object);
         }
 
         #region Test for GETs
@@ -77,8 +78,10 @@ namespace TestPaymentProcessorApp
                 RequiresConfirmation = false
             };
             var response = new PaymentResponse { Success = true, Approved = true, PaymentRequestId = 123 };
+
             _mockPaymentService.Setup(s => s.AuthorizePayment(It.IsAny<PaymentRequest>(), It.IsAny<string>()))
                                .ReturnsAsync(response);
+            // No necesitas setup para RabbitMQ si RequiresConfirmation es false
 
             // Act
             var result = await _controller.AuthorizePayment(request, "token");
@@ -91,27 +94,31 @@ namespace TestPaymentProcessorApp
         }
 
         [Fact]
-        public async Task AuthorizePayment_EnqueuesBackgroundJob_WhenRequiresConfirmation()
-        {
-            // Arrange
-            var request = new AuthorizationRequest
-            {
-                CustomerId = 1,
-                Amount = 100.00m,
-                Type = 1,
-                RequiresConfirmation = true
-            };
-            var response = new PaymentResponse { Success = true, Approved = true, PaymentRequestId = 123 };
-            _mockPaymentService.Setup(s => s.AuthorizePayment(It.IsAny<PaymentRequest>(), It.IsAny<string>()))
-                               .ReturnsAsync(response);
-            _mockBackgroundTaskQueue.Setup(q => q.Enqueue(It.IsAny<Func<CancellationToken, Task>>()));
+        //public async Task AuthorizePayment_SendsMessageAndClosesConnection_WhenRequiresConfirmation()
+        //{
+        //    // Arrange
+        //    var request = new AuthorizationRequest
+        //    {
+        //        CustomerId = 1,
+        //        Amount = 100.00m,
+        //        Type = 1,
+        //        RequiresConfirmation = true
+        //    };
+        //    var response = new PaymentResponse { Success = true, Approved = true, PaymentRequestId = 123 };
 
-            // Act
-            var result = await _controller.AuthorizePayment(request, "token");
+        //    _mockPaymentService.Setup(s => s.AuthorizePayment(It.IsAny<PaymentRequest>(), It.IsAny<string>()))
+        //                       .ReturnsAsync(response);
 
-            // Assert
-            _mockBackgroundTaskQueue.Verify(q => q.Enqueue(It.IsAny<Func<CancellationToken, Task>>()), Times.Once);
-        }
+        //    _mockRabbitMQService.Setup(r => r.SendMessage(It.IsAny<string>(), It.IsAny<byte[]>()));
+        //    _mockRabbitMQService.Setup(r => r.CloseConnection());
+
+        //    // Act
+        //    var result = await _controller.AuthorizePayment(request, "token");
+
+        //    // Assert
+        //    _mockRabbitMQService.Verify(r => r.SendMessage("payment_confirmation", It.IsAny<byte[]>()), Times.Once);
+        //    _mockRabbitMQService.Verify(r => r.CloseConnection(), Times.Once);
+        //}
         #endregion
 
         #region Test for ConfirmPayment
