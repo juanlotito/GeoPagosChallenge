@@ -8,6 +8,7 @@ services:
       - "5000:80"
     depends_on:
       - db
+      - rabbitmq
 
   paymentprocessor:
     build:
@@ -17,6 +18,7 @@ services:
       - "5001:80"
     depends_on:
       - db
+      - rabbitmq
 
   db:
     image: postgres:latest
@@ -30,9 +32,21 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "15672:15672"  # Management interface
+      - "5672:5672"    # Default RabbitMQ port
+
   test:
     build:
       context: ./Test
       dockerfile: Dockerfile
     depends_on:
       - publicapi
+
+volumes:
+  postgres_data:
