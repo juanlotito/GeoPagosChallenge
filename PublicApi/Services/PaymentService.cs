@@ -48,9 +48,6 @@ namespace PublicApi.Services
                     var processorResponse = await _paymentProcessor.ProcessPaymentAsync(processorRequest, token);
 
                     await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Pending);
-
-                    // (Opcional) Notificar al usuario sobre el estado del pago
-                    // NotifyUserAboutPaymentStatus(processorResponse);
                 }
                 catch (Exception ex)
                 {
