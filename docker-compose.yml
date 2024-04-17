@@ -6,7 +6,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      ASPNETCORE_ENVIRONMENT: Development
     depends_on:
       - db
       - rabbitmq
@@ -25,7 +25,6 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
-    image: postgres:latest
     environment:
       POSTGRES_DB: GeoPagos
       POSTGRES_USER: postgres
@@ -34,7 +33,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -42,8 +40,8 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "15672:15672"  # Management interface
-      - "5672:5672"    # Default RabbitMQ port
-      
+      - "15672:15672" 
+      - "5672:5672"   
+
 volumes:
   postgres_data:
