@@ -44,7 +44,7 @@ var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
 builder.Services.AddSingleton(paymentProcessorConfig);
 
-DotEnv.Config();
+DotEnv.Config(filePath: "./.env");
 
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
 var dbName = Environment.GetEnvironmentVariable("DB_NAME");
