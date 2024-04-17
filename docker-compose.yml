@@ -13,7 +13,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_PORT=${DB_PORT}
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_ENVIRONMENT=Development
       - PAYMENT_PROCESSOR_URI=${PAYMENT_PROCESSOR_URI}
     depends_on:
       - db
@@ -23,6 +23,8 @@ services:
     build:
       context: ./PaymentProcessor
       dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "4000:4000"
     depends_on:

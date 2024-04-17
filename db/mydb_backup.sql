@@ -95,16 +95,15 @@ ALTER FUNCTION public.fn_getclientbyid(customer_id integer) OWNER TO postgres;
 -- Name: fn_getpaymentrequestbyid(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.fn_getpaymentrequestbyid(payment_request_id integer) RETURNS TABLE(paymentrequestid integer, statusid character varying, isconfirmed boolean, amount numeric, customerid integer)
+CREATE FUNCTION public.fn_getpaymentrequestbyid(id integer) RETURNS TABLE(paymentrequestid integer, statusid character varying, isconfirmed boolean, amount numeric, customerid integer)
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RETURN QUERY SELECT PaymentRequestId, StatusId, IsConfirmed, Amount, CustomerId
-    FROM PaymentRequests
-    WHERE PaymentRequestId = payment_request_id;
+    RETURN QUERY SELECT p.PaymentRequestId, p.StatusId, p.IsConfirmed, p.Amount, p.CustomerId
+    FROM PaymentRequests p
+    WHERE p.PaymentRequestId = id;
 END;
 $$;
-
 
 ALTER FUNCTION public.fn_getpaymentrequestbyid(payment_request_id integer) OWNER TO postgres;
 
