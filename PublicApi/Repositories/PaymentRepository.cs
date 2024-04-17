@@ -14,8 +14,12 @@ public class PaymentRepository : IPaymentRepository
 
     public async Task<PaymentRequest> GetPaymentRequestByIdAsync(int id)
     {
-        var query = "SELECT * FROM PaymentRequests WHERE Id = @Id";
-        return await _db.QueryFirstOrDefaultAsync<PaymentRequest>(query, new { Id = id });
+        var query = "SELECT fn_getpaymentrequestbyid(@Id)";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@Id", id, DbType.Int32);
+
+        return await _db.QueryFirstOrDefaultAsync<PaymentRequest>(query, parameters);
     }
 
     public async Task<IEnumerable<ApprovedPayment>> GetAllAuthorizedPaymentsAsync()
