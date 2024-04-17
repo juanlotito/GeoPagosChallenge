@@ -67,7 +67,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.Listen(System.Net.IPAddress.Loopback, 4000);
+    serverOptions.ListenAnyIP(4000);
 });
 
 builder.Services.AddCors(options =>
