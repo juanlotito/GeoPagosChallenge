@@ -45,7 +45,7 @@ namespace PublicApi.Services
                 var responseString = await response.Content.ReadAsStringAsync();
                 var processedResult = JsonConvert.DeserializeObject<PaymentProcessorResponse>(responseString);
 
-                await _paymentRepository.ApprovePayment(request.PaymentRequestId);
+                await _paymentRepository.ConfirmPayment(request.PaymentRequestId);
 
                 return processedResult;
             }
