@@ -1,11 +1,12 @@
-version: '3.8'
 services:
   publicapi:
     build:
       context: ./PublicApi
       dockerfile: Dockerfile
     ports:
-      - "5000:80"
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db
       - rabbitmq
@@ -15,12 +16,15 @@ services:
       context: ./PaymentProcessor
       dockerfile: Dockerfile
     ports:
-      - "5001:80"
+      - "4000:4000"
     depends_on:
       - db
       - rabbitmq
 
   db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     image: postgres:latest
     environment:
       POSTGRES_DB: GeoPagos
@@ -35,18 +39,11 @@ services:
   rabbitmq:
     image: "rabbitmq:3-management"
     environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
       - "15672:15672"  # Management interface
       - "5672:5672"    # Default RabbitMQ port
-
-  test:
-    build:
-      context: ./Test
-      dockerfile: Dockerfile
-    depends_on:
-      - publicapi
-
+      
 volumes:
   postgres_data:
