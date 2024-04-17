@@ -44,18 +44,8 @@ var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
 builder.Services.AddSingleton(paymentProcessorConfig);
 
-DotEnv.Config();
-
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
-var dbName = Environment.GetEnvironmentVariable("DB_NAME");
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
-var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-
-var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};";
-
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddTransient<IDbConnection>((sp) => new NpgsqlConnection(connectionString));
-
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
