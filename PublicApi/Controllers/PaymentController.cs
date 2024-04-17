@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PublicApi.Models;
 using PublicApi.Models.Authorization;
 using PublicApi.Models.Enum;
 using PublicApi.Models.Payment;
 using PublicApi.Services.Interface;
+using PublicApi.Utils.RabbitMQ.Interface;
+using System.Text;
 
 namespace PublicApi.Controllers
 {
@@ -12,11 +15,12 @@ namespace PublicApi.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentService _paymentService;
-        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
-        public PaymentController(IPaymentService paymentService, IBackgroundTaskQueue backgroundTaskQueue)
+        private readonly IRabbitMQService _rabbitMQService;
+
+        public PaymentController(IPaymentService paymentService, IRabbitMQService rabbitMQService)
         {
-            _backgroundTaskQueue = backgroundTaskQueue;
             _paymentService = paymentService;
+            _rabbitMQService = rabbitMQService;
         }
 
         #region GET
@@ -61,7 +65,7 @@ namespace PublicApi.Controllers
         {
             try 
             {
-                var response = await this._paymentService.AuthorizePayment(new PaymentRequest
+                var authRequest = new PaymentRequest
                 {
                     CustomerId = request.CustomerId,
                     Amount = request.Amount,
@@ -69,15 +73,22 @@ namespace PublicApi.Controllers
                     IsConfirmed = false,
                     StatusId = (int)PaymentStatus.Pending,
                     RequiresConfirmation = await this._paymentService.DoesRequestRequireConfirmation(request.CustomerId)
-                }, token);
+                };
 
-                if (request.RequiresConfirmation && response.Approved)
+                var response = await this._paymentService.AuthorizePayment(authRequest, token);
+
+                if (authRequest.RequiresConfirmation)
                 {
-                    _backgroundTaskQueue.Enqueue(async token =>
+                    DateTime confirmationDeadline = DateTime.Now.AddMinutes(5);
+
+                    string message = JsonConvert.SerializeObject(new
                     {
-                        await Task.Delay(TimeSpan.FromMinutes(5), token);
-                        await this._paymentService.CheckAndReverseIfNotConfirmed(response.PaymentRequestId);
+                        PaymentRequestId = response.PaymentRequestId,
+                        ConfirmationDeadline = confirmationDeadline
                     });
+
+                    _rabbitMQService.SendMessage("payment_confirmation", Encoding.UTF8.GetBytes(message));
+                    _rabbitMQService.CloseConnection();
                 }
 
                 return Ok(new Response(response.Success, "Request is being processed.", response));

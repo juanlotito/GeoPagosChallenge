@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using PublicApi.Models.Customer;
-using PublicApi.Models.Enum;
 using PublicApi.Models.Payment;
 using PublicApi.Repositories.Interface;
 using System.Data;
@@ -18,10 +17,24 @@ public class PaymentRepository : IPaymentRepository
         var query = "SELECT * FROM PaymentRequests WHERE Id = @Id";
         return await _db.QueryFirstOrDefaultAsync<PaymentRequest>(query, new { Id = id });
     }
+
     public async Task<IEnumerable<ApprovedPayment>> GetAllAuthorizedPaymentsAsync()
     {
         var query = "SELECT * FROM fn_GetAuthorizedPayments();";
         return await _db.QueryAsync<ApprovedPayment>(query);
+    }
+
+    public async Task<bool> GetIsConfirmed(int paymentId)
+    {
+        var query = "SELECT fn_IsConfirmed(@PaymentId)";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@PaymentId", paymentId, DbType.Int32);
+
+        var isConfirmed = await _db.QueryFirstOrDefaultAsync<bool>(query, parameters);
+
+        return isConfirmed;
+
     }
 
     public async Task<int> AddPaymentRequest(PaymentRequest paymentRequest)
@@ -50,14 +63,14 @@ public class PaymentRepository : IPaymentRepository
         await _db.ExecuteAsync(query, parameters);
     }
 
-    public async Task ApprovePayment(int paymentRequestId) 
+    public async Task ConfirmPayment(int paymentRequestId) 
     {
-        var query = @$"SELECT fn_UpdatePaymentStatus(@PaymentRequestId, {(int)PaymentStatus.Approved});";
+        var query = @"SELECT fn_ConfirmPayment(@payment_request_id)";
 
         var parameters = new DynamicParameters();
-        parameters.Add("PaymentRequestId", paymentRequestId, DbType.Int32);
+        parameters.Add("payment_request_id", paymentRequestId, DbType.Int32);
 
-        await _db.ExecuteAsync(query, parameters);
+        await _db.ExecuteAsync(query, parameters); 
     }
 
     public async Task<Customer> GetClientById(int clientId)
