@@ -93,7 +93,7 @@ namespace TestPaymentProcessorApp
             Assert.Equal("Request is being processed.", returnResponse.Message);
         }
 
-        [Fact]
+        //[Fact]
         //public async Task AuthorizePayment_SendsMessageAndClosesConnection_WhenRequiresConfirmation()
         //{
         //    // Arrange
