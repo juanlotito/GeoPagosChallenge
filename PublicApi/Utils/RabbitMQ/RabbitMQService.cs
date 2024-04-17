@@ -1,5 +1,7 @@
-﻿using PublicApi.Utils.RabbitMQ.Interface;
+﻿using PublicApi.Utils.RabbitMQ;
+using PublicApi.Utils.RabbitMQ.Interface;
 using RabbitMQ.Client;
+using System.Data;
 
 public class RabbitMQService : IRabbitMQService
 {
@@ -7,12 +9,13 @@ public class RabbitMQService : IRabbitMQService
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private bool _queueDeclared = false;
-
-    public RabbitMQService()
+    private readonly IDbConnection _db;
+    public RabbitMQService(IDbConnection db)
     {
-        _factory = new ConnectionFactory() { HostName = "rabbitmq" };
+        _factory = new ConnectionFactory() { HostName = "localhost" };
         _connection = _factory.CreateConnection();
         _channel = _connection.CreateModel();
+        _db = db;
     }
 
     public void SendMessage(string queueName, byte[] messageBody)
@@ -20,6 +23,7 @@ public class RabbitMQService : IRabbitMQService
         if (!_queueDeclared)
         {
             _channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            var consumer = new RabbitMQConsumer("payment_confirmation", new PaymentRepository(_db));
             _queueDeclared = true;
         }
 

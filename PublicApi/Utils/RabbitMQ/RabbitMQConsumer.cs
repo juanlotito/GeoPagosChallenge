@@ -15,43 +15,36 @@ namespace PublicApi.Utils.RabbitMQ
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly string _queueName;
-        private readonly IPaymentService _paymentService; 
         private readonly IPaymentRepository _paymentRepository;
         private Timer _timer;
 
-        public RabbitMQConsumer(string queueName, IPaymentService paymentService, IPaymentRepository paymentRepository)
+        public RabbitMQConsumer(string queueName, IPaymentRepository paymentRepository)
         {
-            _factory = new ConnectionFactory() { HostName = "localhost" };
-            _connection = _factory.CreateConnection();
-            _channel = _connection.CreateModel();
-            _queueName = queueName;
-            _paymentService = paymentService;
-            _paymentRepository = paymentRepository;
-
-            _channel.QueueDeclare(queue: _queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-
-            var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += async (model, ea) =>
+            try 
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                await ProcessMessage(message);
-            };
+                _factory = new ConnectionFactory() { HostName = "localhost" };
+                _connection = _factory.CreateConnection();
+                _channel = _connection.CreateModel();
+                _queueName = queueName;
+                _paymentRepository = paymentRepository;
 
-            _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
-        }
+                _channel.QueueDeclare(queue: _queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
 
-        public async Task CheckAuthorizationStatus()
-        {
-            var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += async (model, ea) =>
+                var consumer = new EventingBasicConsumer(_channel);
+                consumer.Received += async (model, ea) =>
+                {
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    await ProcessMessage(message);
+                };
+
+                _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
+            }
+            catch (Exception e)
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                await ProcessMessage(message);
-            };
-
-            _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
+                throw;
+            }
+            
         }
 
         public async Task ProcessMessage(string message)

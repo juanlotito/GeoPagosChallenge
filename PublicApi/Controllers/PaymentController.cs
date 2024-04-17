@@ -88,7 +88,6 @@ namespace PublicApi.Controllers
                     });
 
                     _rabbitMQService.SendMessage("payment_confirmation", Encoding.UTF8.GetBytes(message));
-                    _rabbitMQService.CloseConnection();
                 }
 
                 return Ok(new Response(response.Success, "Request is being processed.", response));

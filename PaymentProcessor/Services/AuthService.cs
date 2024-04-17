@@ -15,6 +15,8 @@ namespace PaymentProcessor.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("4c5nNI0zNIgBonQ4c5nNI0zNIgBonQ12"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            if (username == null) username = "admin";
+
             var claims = new[]
             {
             new Claim(JwtRegisteredClaimNames.Sub, username),

@@ -20,22 +20,17 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 });
 
-// Queue
-builder.Services.AddHostedService<QueuedHostedService>();
-
 // Services
 builder.Services.AddSingleton<IPaymentService, PaymentService>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddSingleton<IExternalPaymentProcessor, ExternalPaymentProcessor>();
 builder.Services.AddSingleton<IPaymentRepository, PaymentRepository>();
-
-builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddTransient<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IRabbitMQConsumer>(provider =>
 {
     var rabbitMQService = provider.GetService<IRabbitMQService>();
-    var paymentService = provider.GetService<IPaymentService>();
     var paymentRepository = provider.GetService<IPaymentRepository>();
-    return new RabbitMQConsumer("payment_confirmation", paymentService, paymentRepository);
+    return new RabbitMQConsumer("payment_confirmation", paymentRepository);
 });
 
 builder.Services.AddHttpClient();
@@ -45,7 +40,7 @@ builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorCon
 builder.Services.AddSingleton(paymentProcessorConfig);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddTransient<IDbConnection>((sp) => new NpgsqlConnection(connectionString));
+builder.Services.AddSingleton<IDbConnection>((sp) => new NpgsqlConnection(connectionString));
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

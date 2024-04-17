@@ -19,7 +19,6 @@ namespace PaymentProcessor.Controllers
         }
 
         [HttpPost("process")]
-        [Authorize]
         public ActionResult<PaymentProcessingResponse> ProcessPayment([FromBody, Required] PaymentProcessingRequest request)
         {
             try 

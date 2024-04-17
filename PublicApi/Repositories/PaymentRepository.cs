@@ -27,13 +27,12 @@ public class PaymentRepository : IPaymentRepository
 
     public async Task<bool> GetIsConfirmed(int paymentId)
     {
+        _db.Open();
         var query = "SELECT fn_IsConfirmed(@PaymentId)";
-
         var parameters = new DynamicParameters();
         parameters.Add("@PaymentId", paymentId, DbType.Int32);
-
         var isConfirmed = await _db.QueryFirstOrDefaultAsync<bool>(query, parameters);
-
+        _db.Close();
         return isConfirmed;
 
     }
