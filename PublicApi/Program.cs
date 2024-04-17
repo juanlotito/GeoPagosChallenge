@@ -58,4 +58,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();  
 app.MapControllers();
 
+if (args.Contains("--run-tests"))
+{
+    return;
+}   
+
 app.Run();
