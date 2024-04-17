@@ -12,7 +12,7 @@ public class RabbitMQService : IRabbitMQService
     private readonly IDbConnection _db;
     public RabbitMQService(IDbConnection db)
     {
-        _factory = new ConnectionFactory() { HostName = "localhost" };
+        _factory = new ConnectionFactory() { HostName = "rabbitmq" };
         _connection = _factory.CreateConnection();
         _channel = _connection.CreateModel();
         _db = db;
