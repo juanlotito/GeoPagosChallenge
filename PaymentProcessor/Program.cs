@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using PaymentProcessor.Services;
 using PaymentProcessor.Services.Interface;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -94,6 +95,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+if (args.Contains("--run-tests"))
+{
+    return; 
+}
 
 app.Run();
 

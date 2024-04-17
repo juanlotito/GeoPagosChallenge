@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Npgsql;
 using PublicApi.Controllers;
 using PublicApi.Models;
+using PublicApi.Models.Authorization;
 using PublicApi.Models.Payment;
 using PublicApi.Services.Interface;
+using System.Data;
 
 namespace TestPaymentProcessorApp
 {
@@ -20,6 +23,7 @@ namespace TestPaymentProcessorApp
             _controller = new PaymentController(_mockPaymentService.Object, _mockBackgroundTaskQueue.Object);
         }
 
+        #region Test for GETs
         [Fact]
         public async Task GetPaymentStatus_ReturnsNotFound_WhenPaymentRequestIsNotFound()
         {
@@ -58,6 +62,114 @@ namespace TestPaymentProcessorApp
             Assert.Equal("Search done correctly", response.Message);
             Assert.Equal(mockPaymentRequest, response.Data);
         }
-    }
+        #endregion
 
+        #region Test for Authorize
+        [Fact]
+        public async Task AuthorizePayment_ReturnsOk_WhenPaymentIsProcessed()
+        {
+            // Arrange
+            var request = new AuthorizationRequest
+            {
+                CustomerId = 1,
+                Amount = 100.00m,
+                Type = 1,
+                RequiresConfirmation = false
+            };
+            var response = new PaymentResponse { Success = true, Approved = true, PaymentRequestId = 123 };
+            _mockPaymentService.Setup(s => s.AuthorizePayment(It.IsAny<PaymentRequest>(), It.IsAny<string>()))
+                               .ReturnsAsync(response);
+
+            // Act
+            var result = await _controller.AuthorizePayment(request, "token");
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnResponse = Assert.IsType<Response>(okResult.Value);
+            Assert.True(returnResponse.Success);
+            Assert.Equal("Request is being processed.", returnResponse.Message);
+        }
+
+        [Fact]
+        public async Task AuthorizePayment_EnqueuesBackgroundJob_WhenRequiresConfirmation()
+        {
+            // Arrange
+            var request = new AuthorizationRequest
+            {
+                CustomerId = 1,
+                Amount = 100.00m,
+                Type = 1,
+                RequiresConfirmation = true
+            };
+            var response = new PaymentResponse { Success = true, Approved = true, PaymentRequestId = 123 };
+            _mockPaymentService.Setup(s => s.AuthorizePayment(It.IsAny<PaymentRequest>(), It.IsAny<string>()))
+                               .ReturnsAsync(response);
+            _mockBackgroundTaskQueue.Setup(q => q.Enqueue(It.IsAny<Func<CancellationToken, Task>>()));
+
+            // Act
+            var result = await _controller.AuthorizePayment(request, "token");
+
+            // Assert
+            _mockBackgroundTaskQueue.Verify(q => q.Enqueue(It.IsAny<Func<CancellationToken, Task>>()), Times.Once);
+        }
+        #endregion
+
+        #region Test for ConfirmPayment
+        [Fact]
+        public async Task ConfirmPayment_ReturnsBadRequest_WhenConfirmationFails()
+        {
+            // Arrange
+            var paymentRequestId = 1;
+            var result = new PaymentConfirmationResult { Success = false, Message = "Confirmation failed." };
+            _mockPaymentService.Setup(s => s.ConfirmPayment(paymentRequestId))
+                               .ReturnsAsync(result);
+
+            // Act
+            var response = await _controller.ConfirmPayment(paymentRequestId);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
+            var returnResponse = Assert.IsType<Response>(badRequestResult.Value);
+            Assert.False(returnResponse.Success);
+            Assert.Equal("Confirmation failed.", returnResponse.Message);
+        }
+        #endregion
+
+        #region Test for ReversePayment
+        [Fact]
+        public async Task ReversePayment_ReturnsOk_WhenReversalIsSuccessful()
+        {
+            // Arrange
+            var paymentRequestId = 1;
+            _mockPaymentService.Setup(s => s.ReversePayment(paymentRequestId))
+                               .ReturnsAsync(true);
+
+            // Act
+            var response = await _controller.ReversePayment(paymentRequestId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(response);
+            var returnResponse = Assert.IsType<Response>(okResult.Value);
+            Assert.True(returnResponse.Success);
+            Assert.Equal("Payment has been successfully reversed.", returnResponse.Message);
+        }
+        #endregion
+
+        //Al no haber podido testear esto en pruebas integrales, deje un ping a la base de datos  
+        [Fact]
+        public async Task DatabaseIsAccessible()
+        {
+            var connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=GeoPagos;Username=postgres;Password=1234;");
+            try
+            {
+                await connection.OpenAsync();
+                Assert.True(connection.State == ConnectionState.Open);
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
+        }
+
+    }
 }
