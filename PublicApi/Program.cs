@@ -8,6 +8,8 @@ using PublicApi.Models.PaymentProcessor;
 using Microsoft.OpenApi.Models;
 using PublicApi.Utils.RabbitMQ.Interface;
 using PublicApi.Utils.RabbitMQ;
+using dotenv.net;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,8 @@ builder.Services.AddHttpClient();
 var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
 builder.Services.AddSingleton(paymentProcessorConfig);
+
+DotEnv.Config();
 
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
 var dbName = Environment.GetEnvironmentVariable("DB_NAME");
