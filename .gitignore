@@ -1,0 +1,69 @@
+# Archivos de configuración
+appsettings*.json
+!appsettings.Development.json
+
+# Archivos y carpetas del compilador
+[Bb]in/
+[Oo]bj/
+out/
+
+# Archivos de Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+
+# Archivos de paquetes NuGet
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+nuget.config
+
+# Herramientas de desarrollo
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Archivos de salida
+*.exe
+*.dll
+*.pdb
+*.cache
+*.ico
+*.lastcodeanalysissucceeded
+
+# Otros archivos y carpetas
+*.swp
+*.tmp
+*.log
+*.bak
+*.[Cc]ache
+*.[Tt]mp
+*.[Oo]rphan
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+*notes.txt
+README.md
+LICENSE.txt
+
+# Folders de herramientas de testeo y rendimiento
+TestResults/
+[Bb]uild[Ll]og.*
+*.[Pp]erformance[Rr]eport.*
+
+# Archivos específicos de Mac
+.DS_Store
+
+# Archivos específicos de Rider
+.idea/
+*.iml
+*.iws
+
+# Carpetas de Node utilizadas por algunas herramientas frontend
+node_modules/
