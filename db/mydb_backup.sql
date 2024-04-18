@@ -248,6 +248,24 @@ CREATE TABLE public.paymentrequests (
 
 ALTER TABLE public.paymentrequests OWNER TO postgres;
 
+CREATE OR REPLACE FUNCTION public.fn_updatepaymentstatus(
+	payment_request_id integer,
+	status_id integer)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    UPDATE PaymentRequests
+    SET StatusId = status_id
+    WHERE PaymentRequestId = payment_request_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.fn_updatepaymentstatus(integer, integer)
+    OWNER TO postgres;
+
 --
 -- Name: paymentrequests_paymentrequestid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
