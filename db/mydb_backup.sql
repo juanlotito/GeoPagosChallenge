@@ -49,12 +49,48 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION fn_AddApprovedPayment(
+    p_PaymentRequestId INTEGER,
+    p_CustomerId INTEGER,
+    p_Amount NUMERIC,
+    p_PaymentTypesId INTEGER
+)
+RETURNS VOID AS
+$$
+BEGIN
+    INSERT INTO public.approvedpayments (paymentrequestid, amount, customerid)
+    VALUES (p_PaymentRequestId, p_Amount, p_CustomerId);
+END;
+$$
+LANGUAGE plpgsql;
+
+ALTER FUNCTION  public.fn_AddApprovedPayment OWNER TO postgres;
+
 
 ALTER FUNCTION public.fn_addpaymentrequest(customer_id integer, amount numeric, payment_type_id integer, is_confirmed boolean, status_id integer) OWNER TO postgres;
 
 --
 -- Name: fn_getauthorizedpayments(); Type: FUNCTION; Schema: public; Owner: postgres
 --
+
+CREATE FUNCTION public.fn_updatepaymentstatus(
+	payment_request_id integer,
+	status_id integer)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+    UPDATE PaymentRequests
+    SET StatusId = status_id
+    WHERE PaymentRequestId = payment_request_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.fn_updatepaymentstatus(integer, integer)
+    OWNER TO postgres;
 
 CREATE FUNCTION public.fn_getauthorizedpayments() RETURNS TABLE(paymentrequestid integer, approvaldate timestamp without time zone, amount numeric, customerid integer)
     LANGUAGE plpgsql
@@ -247,24 +283,6 @@ CREATE TABLE public.paymentrequests (
 
 
 ALTER TABLE public.paymentrequests OWNER TO postgres;
-
-CREATE OR REPLACE FUNCTION public.fn_updatepaymentstatus(
-	payment_request_id integer,
-	status_id integer)
-    RETURNS void
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-BEGIN
-    UPDATE PaymentRequests
-    SET StatusId = status_id
-    WHERE PaymentRequestId = payment_request_id;
-END;
-$BODY$;
-
-ALTER FUNCTION public.fn_updatepaymentstatus(integer, integer)
-    OWNER TO postgres;
 
 --
 -- Name: paymentrequests_paymentrequestid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
