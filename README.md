@@ -5,7 +5,7 @@
 ![Docker](https://img.shields.io/badge/docker-supported-blue)
 
 ## 📝 Descripción
-¡Bienvenido al proyecto PaymentProcessorApp! Este proyecto es mi propuesta de solución para el challenge de la empresa GeoPagos. La solución consta de dos APIs y un conjunto de pruebas (Test). Una de las APIs es completamente pública y tiene Swagger disponible para facilitar su uso. La otra API está protegida con JWT y, por razones de seguridad, no dispone de Swagger en los entornos de Testing y Producción. Todo el proyecto está dockerizado e incluye PostgreSQL como sistema de gestión de base de datos y RabbitMQ como sistema de cola de mensajes.
+¡Buenas! Este proyecto es mi propuesta de solución para el challenge de GeoPagos. La solución consta de dos APIs y un conjunto de pruebas (Test). Una de las APIs es completamente pública y tiene Swagger disponible. La otra API está protegida con JWT y no dispone de Swagger. Todo el proyecto está dockerizado e incluye PostgreSQL como sistema de gestión de base de datos y RabbitMQ como cola de mensajería.
 
 ## 📋 Índice
 
@@ -21,7 +21,7 @@
 
 ## 🚀 Cómo Empezar
 
-Para poner en marcha el proyecto PaymentProcessorApp, sigue estos pasos:
+Para arrancar el proyecto:
 1. **Clona el repositorio**  
    Usa el siguiente comando para clonar el repositorio desde la rama master:
    ```bash
@@ -52,7 +52,7 @@ Como mencioné anteriormente, la solución incluye una **API pública** accesibl
   - **Rechazo**: Si la solicitud es con un número decimal.
 
 ### Procesador de Pago
-El procesador de pago es una **API privada** que requiere autorización JWT para ejecutarse. Se necesita usuario y contraseña para acceder.
+El procesador de pago es una **API privada** que requiere autorización JWT para ejecutarse. Se necesita usuario y contraseña para acceder. Aprueba o rechaza las solicitudes que recibe desde la PublicAPI.
 
 ### Tipos de Cliente
 Existen dos tipos de solicitudes de cliente:
@@ -136,6 +136,7 @@ Con eso cubriríamos el flujo principal de este ejercicio, aunque la API tiene m
  - ##### GET `/payments/authorized` : No recibe parámetros y devuelve todos los PaymentRequest con StatusId = 1 (aprobado).
  - ##### POST `/payment/confirm/{PaymentRequestId}`: Recibe por path el PaymentRequestId y genera la confirmación manual.
  - ##### POST `/payment/reverse/{PaymentRequestId}`: Recibe por path el PaymentRequestId y genera la reversa manual del pago.
+
  
 ## 📬 Contacto
 
