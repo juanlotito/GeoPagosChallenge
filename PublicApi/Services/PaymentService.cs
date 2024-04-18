@@ -34,24 +34,23 @@ namespace PublicApi.Services
         {
             int insertedId = await _paymentRepository.AddPaymentRequest(request);
 
-            _backgroundTaskQueue.Enqueue(async cancelationToken =>
+            var processorRequest = new PaymentProcessorRequest
+            {
+                Amount = request.Amount,
+                CustomerId = request.CustomerId,
+                PaymentRequestId = insertedId
+            };
+
+            _backgroundTaskQueue.Enqueue(async (cancellationToken) =>
             {
                 try
                 {
-                    var processorRequest = new PaymentProcessorRequest
-                    {
-                        Amount = request.Amount,
-                        CustomerId = request.CustomerId,
-                        PaymentRequestId = insertedId
-                    };
-
                     var processorResponse = await _paymentProcessor.ProcessPaymentAsync(processorRequest, token);
-
                     await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Pending);
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine($"Error processing payment: {ex.Message}");
+                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Denied);
                 }
             });
 

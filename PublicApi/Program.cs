@@ -8,8 +8,6 @@ using PublicApi.Models.PaymentProcessor;
 using Microsoft.OpenApi.Models;
 using PublicApi.Utils.RabbitMQ.Interface;
 using PublicApi.Utils.RabbitMQ;
-using dotenv.net;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,13 +15,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeoPagos Challenge: PublicAPI", Version = "v1" });
 });
 
-// Services
-builder.Services.AddSingleton<IPaymentService, PaymentService>();
+//SERVICIOS
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-builder.Services.AddSingleton<IExternalPaymentProcessor, ExternalPaymentProcessor>();
+builder.Services.AddScoped<IExternalPaymentProcessor, ExternalPaymentProcessor>();
 builder.Services.AddSingleton<IPaymentRepository, PaymentRepository>();
 builder.Services.AddTransient<IRabbitMQService, RabbitMQService>();
 builder.Services.AddSingleton<IRabbitMQConsumer>(provider =>
@@ -32,9 +30,9 @@ builder.Services.AddSingleton<IRabbitMQConsumer>(provider =>
     var paymentRepository = provider.GetService<IPaymentRepository>();
     return new RabbitMQConsumer("payment_confirmation", paymentRepository);
 });
-
 builder.Services.AddHttpClient();
 
+// CONFIGS
 var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
 builder.Services.AddSingleton(paymentProcessorConfig);
@@ -42,6 +40,10 @@ builder.Services.AddSingleton(paymentProcessorConfig);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddSingleton<IDbConnection>((sp) => new NpgsqlConnection(connectionString));
 
+//QUEUE SERVICE
+builder.Services.AddHostedService<QueuedHostedService>();
+
+//KESTREL CONFIG PARA DOCKER
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.ListenAnyIP(5000);
@@ -49,6 +51,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 var app = builder.Build();
 
+//SWAGGER SIN PREFIJO, SOLO EN DEVELOPMENT
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
