@@ -88,6 +88,12 @@ namespace PublicApi.Controllers
                     });
 
                     _rabbitMQService.SendMessage("payment_confirmation", Encoding.UTF8.GetBytes(message));
+
+                } else
+                {
+                    await _paymentService.ConfirmPayment(response.PaymentRequestId);
+
+                    return Ok(new Response(response.Success, "Request approved.", response));
                 }
 
                 return Ok(new Response(response.Success, "Request is being processed.", response));
@@ -96,7 +102,6 @@ namespace PublicApi.Controllers
             {
                 return BadRequest(new Response(false, $"Error in payment authorization: {ex.Message}", null));
             }
-            
         }
 
         [HttpPost("/payments/confirm/{paymentRequestId}")]

@@ -112,4 +112,22 @@ public class PaymentRepository : IPaymentRepository
         }
     }
 
+    public async Task AddApprovedPayment(int paymentId)
+    {
+        PaymentRequest paymentRequest = await GetPaymentRequestByIdAsync(paymentId);
+
+        var query = "SELECT fn_AddApprovedPayment(@PaymentRequestId, @CustomerId, @Amount, @PaymentTypesId);";
+        var parameters = new DynamicParameters(new
+        {
+            PaymentRequestId = paymentId,
+            CustomerId = paymentRequest.CustomerId,
+            Amount = paymentRequest.Amount,
+            PaymentTypesId = paymentRequest.PaymentTypesId
+        });
+
+        using (var connection = _db)
+        {
+            await connection.ExecuteAsync(query, parameters);
+        }
+    }
 }

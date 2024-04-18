@@ -14,5 +14,6 @@ namespace PublicApi.Repositories.Interface
         Task UpdatePaymentRequest(int paymentRequestId, int newStatusId, bool isConfirmed);
         Task ReversePayment(int paymentRequestId);
         Task<IEnumerable<ApprovedPayment>> GetAllAuthorizedPaymentsAsync();
+        Task AddApprovedPayment(int paymentId);
     }
 }
