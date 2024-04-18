@@ -54,7 +54,7 @@ public class PaymentRepository : IPaymentRepository
 
     public async Task UpdatePaymentStatus(int paymentRequestId, int statusId)
     {
-        var query = @"SELECT fn_UpdatePaymentStatus(@PaymentRequestId, @StatusId);";
+        var query = @"SELECT fn_updatepaymentstatus(@PaymentRequestId, @StatusId);";
 
         var parameters = new DynamicParameters();
         parameters.Add("PaymentRequestId", paymentRequestId, DbType.Int32);
