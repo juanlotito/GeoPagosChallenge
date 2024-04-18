@@ -12,30 +12,29 @@ namespace PaymentProcessor.Services
     {
         public string GenerateJwtToken(string username)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("4c5nNI0zNIgBonQ4c5nNI0zNIgBonQ12"));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("yourSecretKeyHereReplaceThis"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            if (username == null) username = "admin";
-
+    
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-
+    
             var token = new JwtSecurityToken(
                 issuer: "PublicApiIssuer",
                 audience: "PaymentProcessorAudience",
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: credentials);
-
+    
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    
         public bool IsValidUser(UserCredentials credentials)
         {
-            //TODO: Implementar metodo
-            return true;
+            // Como es un challenge, no creí necesario implementar una DB para almacenar y validar usuarios/contraseñas
+            return credentials.Username == "admin" && credentials.Password == "admin";
         }
 
     }
