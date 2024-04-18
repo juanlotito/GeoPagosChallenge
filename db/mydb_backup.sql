@@ -75,13 +75,12 @@ ALTER FUNCTION public.fn_addpaymentrequest(customer_id integer, amount numeric, 
 --
 
 CREATE FUNCTION public.fn_updatepaymentstatus(
-	payment_request_id integer,
-	status_id integer)
-    RETURNS void
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-LANGUAGE plpgsql
+    payment_request_id integer,
+    status_id integer)
+RETURNS void
+LANGUAGE plpgsql  
+COST 100
+VOLATILE PARALLEL UNSAFE
 AS $BODY$
 BEGIN
     UPDATE PaymentRequests
