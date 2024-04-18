@@ -12,7 +12,7 @@ namespace PaymentProcessor.Services
     {
         public string GenerateJwtToken(string username)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("yourSecretKeyHereReplaceThis"));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("4c5nNI0zNIgBonQ4c5nNI0zNIgBonQ12"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
     
             var claims = new[]
