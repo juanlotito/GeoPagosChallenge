@@ -104,6 +104,19 @@ $$;
 
 ALTER FUNCTION public.fn_getauthorizedpayments() OWNER TO postgres;
 
+CREATE OR REPLACE FUNCTION public.fn_IsConfirmed(
+    payment_request_id INTEGER
+)
+RETURNS BOOLEAN AS
+$$
+BEGIN
+    RETURN (SELECT IsConfirmed FROM PaymentRequests WHERE PaymentRequestId = payment_request_id);
+END;
+$$
+LANGUAGE plpgsql;
+
+ALTER FUNCTION public.fn_IsConfirmed(payment_request_id integer) OWNER TO postgres;
+
 --
 -- Name: fn_getclientbyid(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
