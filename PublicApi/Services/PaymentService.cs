@@ -105,16 +105,17 @@ namespace PublicApi.Services
                 return new PaymentConfirmationResult { Success = false, Message = "Payment request is already confirmed." };
             }
 
-            if ((DateTime.UtcNow - paymentRequest.RequestDate).TotalMinutes > 5)
+            if ((DateTime.UtcNow - paymentRequest.RequestDate).TotalMinutes > 5 && paymentRequest.RequiresConfirmation)
             {
                 await this._paymentRepository.ReversePayment(paymentRequestId); 
                 return new PaymentConfirmationResult { Success = false, Message = "Payment request confirmation time has expired and has been reversed." };
             }
 
             paymentRequest.IsConfirmed = true;
-            paymentRequest.StatusId = 2; 
+            paymentRequest.StatusId = 1; 
 
             await _paymentRepository.UpdatePaymentRequest(paymentRequestId, paymentRequest.StatusId, paymentRequest.IsConfirmed);
+            await _paymentRepository.AddApprovedPayment(paymentRequestId);
 
             return new PaymentConfirmationResult { Success = true };
         }
@@ -126,7 +127,7 @@ namespace PublicApi.Services
                 await _paymentRepository.ReversePayment(paymentRequestId);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

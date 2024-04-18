@@ -68,6 +68,7 @@ namespace PublicApi.Utils.RabbitMQ
                 if (confirmed)
                 {
                     await _paymentRepository.UpdatePaymentStatus(paymentRequestId, (int)PaymentStatus.Approved);
+                    await _paymentRepository.AddApprovedPayment(paymentRequestId);
                     _timer.Dispose();
                     return;
                 }
