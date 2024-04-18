@@ -17,9 +17,8 @@ builder.Services.AddScoped<IPaymentProcessorService, PaymentProcessorService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PaymentProcessorAPI", Version = "v1" });
 
-    // Añadir definición de seguridad para incluir un campo de autorización JWT en Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
@@ -29,7 +28,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // Añadir requerimiento de seguridad global para usar el esquema de Bearer JWT
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {
@@ -49,7 +47,6 @@ builder.Services.AddSwaggerGen(c =>
         });
 });
 
-// Configuración de la autenticación JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -70,15 +67,6 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.ListenAnyIP(4000);
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
-});
-
-
 builder.Services.AddControllers();  
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -89,23 +77,21 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
-
 app.UseAuthentication();  
 app.UseAuthorization();
 
 app.MapControllers();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
-
+// QUEDA COMENTADA ESTA SECCIÓN EVITAR QUE SE EJECUTE EL SWAGGER, Y ASI PODER CUMPLIR CON LA CONSIGNA
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(c =>
+//    {
+//        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+//        c.RoutePrefix = string.Empty;
+//    });
+//}
 
 if (args.Contains("--run-tests"))
 {
