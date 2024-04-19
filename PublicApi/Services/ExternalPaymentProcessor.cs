@@ -39,7 +39,8 @@ namespace PublicApi.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    await _paymentRepository.UpdatePaymentStatus(request.PaymentRequestId, (int)PaymentStatus.Denied);
+                    await _paymentRepository.UpdatePaymentStatus(request.PaymentRequestId, (int)PaymentStatus.Denied, $"There was an error trying to approve the payment. Status code: {response.StatusCode}, Content: {response.Content}");
+                    return new PaymentProcessorResponse { PaymentRequestId = request.PaymentRequestId, IsApproved = false, Message = "There was an error trying to approve the payment." };
                 }
 
                 var responseString = await response.Content.ReadAsStringAsync();
