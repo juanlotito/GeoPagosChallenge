@@ -2,9 +2,9 @@
 {
     public class ApprovedPayment
     {
-        public int PaymentRequestId { get; set; }
-        public DateTime ApprovalDate { get; set; }
-        public decimal Amount { get; set; }
-        public int CustomerId { get; set; }
+        public int PaymentId { get; set; }
+        public DateTime PaymentApprovalDate { get; set; }
+        public double PaymentAmount { get; set; }
+        public int PaymentCustomerId { get; set; }
     }
 }
