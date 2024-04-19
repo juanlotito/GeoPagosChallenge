@@ -67,4 +67,3 @@ TestResults/
 
 # Carpetas de Node utilizadas por algunas herramientas frontend
 node_modules/
-/PaymentProcessor/appsettings.json

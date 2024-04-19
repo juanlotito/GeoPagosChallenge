@@ -115,7 +115,12 @@ namespace PublicApi.Services
             paymentRequest.StatusId = 1; 
 
             await _paymentRepository.UpdatePaymentRequest(paymentRequestId, paymentRequest.StatusId, paymentRequest.IsConfirmed);
-            await _paymentRepository.AddApprovedPayment(paymentRequestId);
+            
+            // Manejo asíncrono para alimentar el proceso de reportería
+            _backgroundTaskQueue.Enqueue(async cancellationToken =>
+            {
+                await _paymentRepository.AddApprovedPayment(paymentRequestId);
+            });
 
             return new PaymentConfirmationResult { Success = true };
         }
