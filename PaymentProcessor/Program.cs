@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PaymentProcessor.Services;
@@ -81,17 +80,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// QUEDA COMENTADA ESTA SECCIÓN EVITAR QUE SE EJECUTE EL SWAGGER, Y ASI PODER CUMPLIR CON LA CONSIGNA
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI(c =>
-//    {
-//        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-//        c.RoutePrefix = string.Empty;
-//    });
-//}
 
 if (args.Contains("--run-tests"))
 {
