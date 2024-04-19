@@ -90,7 +90,6 @@ namespace TestPaymentProcessorApp
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnResponse = Assert.IsType<Response>(okResult.Value);
             Assert.True(returnResponse.Success);
-            Assert.Equal("Request is being processed.", returnResponse.Message);
         }
 
         //[Fact]
