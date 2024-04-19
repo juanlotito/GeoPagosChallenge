@@ -8,6 +8,7 @@
         public int StatusId { get; set; }
         public int PaymentTypesId { get; set; }
         public bool IsConfirmed { get; set; }
-        public bool RequiresConfirmation { get; set; } = false;
+        public bool RequiresConfirmation { get; set; } = false; 
+        public string? Details { get; set; } = string.Empty;
     }
 }
