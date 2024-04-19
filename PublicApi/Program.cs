@@ -1,7 +1,5 @@
-using Npgsql;
 using PublicApi.Services.Interface;
 using PublicApi.Services;
-using System.Data;
 using PublicApi.Utils;
 using PublicApi.Repositories.Interface;
 using PublicApi.Models.PaymentProcessor;
@@ -36,9 +34,6 @@ builder.Services.AddHttpClient();
 var paymentProcessorConfig = new PaymentProcessorConfig();
 builder.Configuration.GetSection("PaymentProcessorUri").Bind(paymentProcessorConfig);
 builder.Services.AddSingleton(paymentProcessorConfig);
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddSingleton<IDbConnection>((sp) => new NpgsqlConnection(connectionString));
 
 //QUEUE SERVICE
 builder.Services.AddHostedService<QueuedHostedService>();
