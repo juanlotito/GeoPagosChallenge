@@ -8,7 +8,7 @@ namespace PublicApi.Repositories.Interface
         Task<PaymentRequest> GetPaymentRequestByIdAsync(int id);
         Task<bool> GetIsConfirmed(int paymentId);
         Task<int> AddPaymentRequest(PaymentRequest paymentRequest);
-        Task UpdatePaymentStatus(int paymentRequestId, int statusId);
+        Task UpdatePaymentStatus(int paymentRequestId, int statusId, string? details);
         Task ConfirmPayment(int paymentRequestId);
         Task<Customer> GetClientById(int clientId);
         Task UpdatePaymentRequest(int paymentRequestId, int newStatusId, bool isConfirmed);
