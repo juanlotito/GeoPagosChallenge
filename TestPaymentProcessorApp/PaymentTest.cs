@@ -165,7 +165,7 @@ namespace TestPaymentProcessorApp
         [Fact]
         public async Task DatabaseIsAccessible()
         {
-            var connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=GeoPagos;Username=postgres;Password=1234;");
+            var connection = new NpgsqlConnection("Host=db;Port=5432;Database=GeoPagos;Username=postgres;Password=1234;");
             try
             {
                 await connection.OpenAsync();
