@@ -45,12 +45,19 @@ namespace PublicApi.Services
             {
                 try
                 {
+                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Pending, "Calling the processor.");
+
                     var processorResponse = await _paymentProcessor.ProcessPaymentAsync(processorRequest, token);
-                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Pending);
+
+                    if (!processorResponse.IsApproved)
+                    {
+                        await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Denied, processorResponse.Message);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Denied);
+                    await _paymentRepository.UpdatePaymentStatus(insertedId, (int)PaymentStatus.Denied, ex.Message);
+                    throw ex;
                 }
             });
 
