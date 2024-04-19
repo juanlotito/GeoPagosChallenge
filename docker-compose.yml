@@ -15,6 +15,8 @@ services:
       - DB_PORT=${DB_PORT}
       - ASPNETCORE_ENVIRONMENT=Development
       - PAYMENT_PROCESSOR_URI=${PAYMENT_PROCESSOR_URI}
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - PaymentProcessorUri__Uri=${PAYMENT_PROCESSOR_URI}
     depends_on:
       - db
       - rabbitmq
