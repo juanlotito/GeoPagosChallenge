@@ -1,20 +1,26 @@
 ﻿using Dapper;
+using Npgsql;
 using PublicApi.Models.Customer;
 using PublicApi.Models.Payment;
 using PublicApi.Repositories.Interface;
 using System.Data;
+using System.Data.Common;
 public class PaymentRepository : IPaymentRepository
 {
-    private readonly IDbConnection _db;
+    private readonly string _connectionString;
 
-    public PaymentRepository(IDbConnection db)
+    public PaymentRepository(IConfiguration configuration)
     {
-        _db = db;
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
     }
 
     public async Task<PaymentRequest> GetPaymentRequestByIdAsync(int id)
     {
-        var query = $"SELECT * FROM PaymentRequests WHERE PaymentRequestId = {id}";
+        using (var _db = new NpgsqlConnection(_connectionString)) 
+        {
+        
+        }
+            var query = $"SELECT * FROM PaymentRequests WHERE PaymentRequestId = {id}";
 
         return await _db.QueryFirstOrDefaultAsync<PaymentRequest>(query);
     }
