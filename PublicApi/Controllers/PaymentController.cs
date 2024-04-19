@@ -71,6 +71,7 @@ namespace PublicApi.Controllers
                     Amount = request.Amount,
                     PaymentTypesId = request.Type,
                     IsConfirmed = false,
+                    RequestDate = DateTime.Now,
                     StatusId = (int)PaymentStatus.Pending,
                     RequiresConfirmation = await this._paymentService.DoesRequestRequireConfirmation(request.CustomerId)
                 };
